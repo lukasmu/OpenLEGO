@@ -21,6 +21,8 @@ from __future__ import absolute_import, division, print_function
 
 import abc
 import os
+import io
+import re
 from abc import abstractmethod
 from datetime import datetime
 from cached_property import cached_property
@@ -36,6 +38,7 @@ from openlego.utils.general_utils import is_float
 from openlego.partials.partials import Partials
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
+parser = etree.XMLParser(remove_blank_text=True)
 
 
 class XMLComponent(ExplicitComponent):
@@ -449,36 +452,46 @@ class XMLComponent(ExplicitComponent):
                 Discrete (i.e. not treated as floats) output parameters.
         """
 
-        input_xml, output_xml, _ = self.generate_file_names()
-
-        if self.inputs_from_xml:
-            self.write_input_file(input_xml, inputs, discrete_inputs)
-            if self.base_file is not None:
-                xml_merge(self.base_file, input_xml)
-
-        # Call execute
-        if self.base_file is not None:
-            self.execute(self.base_file, output_xml)
-            xml_merge(self.base_file, output_xml)
-        else:
-            self.execute(input_xml, output_xml)
-
-        # If files should not be kept, delete the input XML file
         if not self.keep_files:
-            try:
-                os.remove(input_xml)
-            except OSError:
-                pass
-
-        if self.outputs_from_xml:
-            self.read_outputs_file(output_xml, outputs, discrete_outputs)
-
-            # If files should not be kept, delete the output XML file
-            if not self.keep_files:
-                try:
-                    os.remove(output_xml)
-                except OSError:
-                    pass
+            # Prepare inputs
+            input_xml = io.BytesIO()
+            output_xml = io.BytesIO()
+            if self.inputs_from_xml:
+                self.write_input_file(input_xml, inputs, discrete_inputs)
+                if self.base_file is not None:
+                    input_xml.seek(0)
+                    input_xml_tree = etree.parse(input_xml, parser)
+                    xml_merge(self.base_file, input_xml_tree)
+            # Call execute
+            if self.base_file is not None:
+                self.execute(self.base_file, output_xml)
+            else:
+                input_xml.seek(0)
+                self.execute(input_xml, output_xml)
+            # Assemble outputs
+            output_xml.seek(0)
+            output_xml_tree = etree.parse(output_xml, parser)
+            if self.base_file is not None:
+                xml_merge(self.base_file, output_xml_tree)
+            if self.outputs_from_xml:
+                self.read_outputs_file(output_xml_tree, outputs, discrete_outputs)
+        else:
+            # Prepare inputs
+            input_xml, output_xml, _ = self.generate_file_names()
+            if self.inputs_from_xml:
+                self.write_input_file(input_xml, inputs, discrete_inputs)
+                if self.base_file is not None:
+                    xml_merge(self.base_file, input_xml)
+            # Call execute
+            if self.base_file is not None:
+                self.execute(self.base_file, output_xml)
+            else:
+                self.execute(input_xml, output_xml)
+            # Assemble outputs
+            if self.base_file is not None:
+                xml_merge(self.base_file, output_xml)
+            if self.outputs_from_xml:
+                self.read_outputs_file(output_xml, outputs, discrete_outputs)
 
     def compute_partials(self, inputs, partials):
         # type: (Vector, Vector) -> None
