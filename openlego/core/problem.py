@@ -526,8 +526,7 @@ class LEGOProblem(CMDOWSObject, Problem):
         print_optional('\nPrinting case numbers: {}'.format(cases_to_collect), print_in_log)
         for num_case in cases_to_collect:
             case = cr.get_case(cases[num_case])
-            print_optional('\n\n  Case {}/{} ({})'.format(num_case, num_cases-1,
-                                                          case.iteration_coordinate),
+            print_optional('\n\n  Case {}/{} ({})'.format(num_case, num_cases-1, case.name),
                            print_in_log)
 
             # Get objectives, design variables and contraints
