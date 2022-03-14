@@ -78,7 +78,7 @@ class LEGOProblem(CMDOWSObject, Problem):
     """
 
     def __init__(self, cmdows_path=None, kb_path='', driver_uid=None, data_folder=None,
-                 base_xml_file=None, output_case_str=None, **kwargs):
+                 base_xml_file=None, output_case=True, output_case_str=None, **kwargs):
         # type: (Optional[str], Optional[str], Optional[str], Optional[str], Optional[str], Optional[str], Any) -> None
         """Initialize a CMDOWS Problem from a given CMDOWS file, knowledge base (optional) and
         driver UID (optional).
@@ -86,6 +86,7 @@ class LEGOProblem(CMDOWSObject, Problem):
         It is also possible to specify where (temporary) data should be stored, and if a base XML
         file should be kept up-to-date.
         """
+        self.output_case = output_case
         if output_case_str:
             self.output_case_string = output_case_str
         elif driver_uid:
@@ -345,9 +346,10 @@ class LEGOProblem(CMDOWSObject, Problem):
     def initialize(self):
         # type: () -> None
         """Method to initialize the problem by adding a recorder and doing the setup."""
-        self.driver.add_recorder(SqliteRecorder(self.case_reader_path))
-        self.driver.recording_options['includes'] = ['*']
-        self.driver.recording_options['record_model_metadata'] = True
+        if self.output_case:
+            self.driver.add_recorder(SqliteRecorder(self.case_reader_path))
+            self.driver.recording_options['includes'] = ['*']
+            self.driver.recording_options['record_model_metadata'] = True
         if self._setup_status == 0:
             self.setup()
 
