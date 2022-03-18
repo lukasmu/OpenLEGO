@@ -452,7 +452,33 @@ class XMLComponent(ExplicitComponent):
                 Discrete (i.e. not treated as floats) output parameters.
         """
 
-        if not self.keep_files:
+        if hasattr(self.discipline, 'execute_fast'):
+            # TODO: Probably this should be in a separate class
+            # Prepare dicts (using xpath as key)
+            input_dict = {}
+            for param in self.inputs_from_xml:
+                if param in inputs:
+                    input_dict[param_to_xpath(param)] = inputs[param]
+                elif param in discrete_inputs:
+                    input_dict[param_to_xpath(param)] = discrete_inputs[param]
+            output_dict = {}
+            # Execute discipline without any ElementTree stuff being involved
+            self.discipline.execute_fast(input_dict, output_dict)
+            # Convert outputs
+            output_rename_map = self.output_rename_map
+            discrete_output_rename_map = self.discrete_output_rename_map
+            for xpath, value in output_dict.items():
+                name = xpath_to_param(xpath)
+                if name in self.outputs_from_xml:
+                    if name in output_rename_map:
+                        name = output_rename_map[name][0]
+                    elif name in discrete_output_rename_map:
+                        name = discrete_output_rename_map[name][0]
+                    if name in outputs:
+                        outputs[name] = value
+                    elif discrete_outputs is not None and name in discrete_outputs:
+                        discrete_outputs[name] = value
+        elif not self.keep_files:
             # Prepare inputs
             input_xml = io.BytesIO()
             output_xml = io.BytesIO()
