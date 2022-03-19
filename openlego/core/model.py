@@ -1533,7 +1533,7 @@ class LEGOModel(CMDOWSObject, Group):
 
         # Declare derivatives
         if len(output_map) > 0:
-            comp.declare_partials('*', '*', method='fd')
+            comp.declare_partials('*', '*', method='fd', step_calc='rel_avg')
 
         # Map discrete parameters
         for src_param, (tgt_param, value) in discrete_output_map.items():
