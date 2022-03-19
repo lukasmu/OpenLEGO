@@ -339,7 +339,7 @@ class LEGOProblem(CMDOWSObject, Problem):
             open_in_browser : bool
                 Setting whether to attempt to automatically open the model view in the browser.
         """
-        if self._setup_status == 0:
+        if self._metadata is None or self._metadata['setup_status'] == 0:
             self.setup()
         n2(self, outfile=self.model_view_path, show_browser=open_in_browser)
 
@@ -349,8 +349,7 @@ class LEGOProblem(CMDOWSObject, Problem):
         if self.output_case:
             self.driver.add_recorder(SqliteRecorder(self.case_reader_path))
             self.driver.recording_options['includes'] = ['*']
-            self.driver.recording_options['record_model_metadata'] = True
-        if self._setup_status == 0:
+        if self._metadata is None or self._metadata['setup_status'] == 0:
             self.setup()
 
     def initialize_from_xml(self, xml):
@@ -566,8 +565,8 @@ class LEGOProblem(CMDOWSObject, Problem):
                     value = recorded_design_vars[var_desvar]
                     if len(value) == 1:
                         value = value[0]
-                    lb_value = cr.problem_metadata['variables'][metadata_name]['ref0']
-                    ub_value = cr.problem_metadata['variables'][metadata_name]['ref']
+                    lb_value = cr.problem_metadata['variables'][metadata_name]['lower']
+                    ub_value = cr.problem_metadata['variables'][metadata_name]['upper']
                     print_optional('    {}: {} ({} < x < {})'.format(var_desvar, value, lb_value,
                                                                      ub_value), print_in_log)
                     results = add_or_append_dict_entry(results, 'desvars', var_desvar, value)

@@ -39,7 +39,7 @@ from typing import Union, Optional, List, Any, Dict, Tuple
 
 from openmdao.api import Group, IndepVarComp, LinearBlockGS, NonlinearBlockGS, LinearBlockJac, \
     NonlinearBlockJac, LinearRunOnce, NonlinearRunOnce, DirectSolver, \
-    MetaModelUnStructuredComp, FloatKrigingSurrogate, ResponseSurface, ExplicitComponent
+    MetaModelUnStructuredComp, KrigingSurrogate, ResponseSurface, ExplicitComponent
 from openmdao.utils.general_utils import format_as_float_or_array, determine_adder_scaler
 from openmdao import INF_BOUND as INF_BOUND
 
@@ -235,7 +235,7 @@ class LEGOModel(CMDOWSObject, Group):
                 fitting_method = get_surrogate_model_setting_safe(surrogate_model, 'fittingMethod',
                                                                   'ResponseSurface')
                 if fitting_method == 'Kriging':
-                    component = MetaModelUnStructuredComp(default_surrogate=FloatKrigingSurrogate())
+                    component = MetaModelUnStructuredComp(default_surrogate=KrigingSurrogate())
                 elif fitting_method == 'ResponseSurface':
                     component = MetaModelUnStructuredComp(default_surrogate=ResponseSurface())
                 else:
@@ -1157,9 +1157,7 @@ class LEGOModel(CMDOWSObject, Group):
 
         # Add design variables
         for name, value in self.design_vars.items():
-            ref = value['initial'] if isinstance(value['initial'], (float, int)) and abs(value['initial']) >= 1 \
-                else 1.0
-            coordinator.add_output(name, value['initial'], ref=ref)
+            coordinator.add_output(name, value['initial'])
 
         # Add system constants
         discrete_variables = self.discrete_variables
@@ -1535,7 +1533,7 @@ class LEGOModel(CMDOWSObject, Group):
 
         # Declare derivatives
         if len(output_map) > 0:
-            comp.declare_partials('*', '*', method='fd', step_calc='rel')
+            comp.declare_partials('*', '*', method='fd')
 
         # Map discrete parameters
         for src_param, (tgt_param, value) in discrete_output_map.items():

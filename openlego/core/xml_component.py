@@ -290,7 +290,7 @@ class XMLComponent(ExplicitComponent):
                             out_param = output_rename_map[out_param][0]
                         self.declare_partials(out_param, [xpath_to_param(_wrt) for _wrt in wrt.keys()])
             else:
-                self.declare_partials('*', '*', method='fd', step_calc='rel')
+                self.declare_partials('*', '*', method='fd')
                 # if self.outputs_from_xml and self.inputs_from_xml:
                 #     for src in self.outputs_from_xml.keys():
                 #         self.declare_partials(src, self.inputs_from_xml.keys(), method='fd')

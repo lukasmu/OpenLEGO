@@ -193,7 +193,6 @@ class SubDriverComponent(ExplicitComponent):
             case_reader_filename = basename + '_loop' + str(self._run_count) + extension
             p.driver.add_recorder(SqliteRecorder(case_reader_filename))
             p.driver.recording_options['includes'] = ['*']
-            p.driver.recording_options['record_model_metadata'] = True
             p.driver._setup_recording()
         p.run_driver()
         self._add_run_count()
