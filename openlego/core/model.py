@@ -1157,7 +1157,9 @@ class LEGOModel(CMDOWSObject, Group):
 
         # Add design variables
         for name, value in self.design_vars.items():
-            coordinator.add_output(name, value['initial'])
+            ref = value['initial'] if abs(value['initial']) >= 1 and isinstance(value['initial'], (float, int)) \
+                else None
+            coordinator.add_output(name, value['initial'], ref=ref)
 
         # Add system constants
         discrete_variables = self.discrete_variables
