@@ -229,8 +229,7 @@ class LEGOProblem(CMDOWSObject, Problem):
             elif opt_algo == 'L-BFGS-B':
                 driver.options['optimizer'] = 'L-BFGS-B'
             else:
-                raise ValueError('Unsupported algorithm {} encountered in CMDOWS file for "{}".'
-                                 .format(opt_algo, opt_uid))
+                driver.options['optimizer'] = opt_algo
 
             # maximum iterations and tolerance
             if isinstance(driver, ScipyOptimizeDriver):
