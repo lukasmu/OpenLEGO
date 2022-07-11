@@ -562,7 +562,7 @@ class LEGOProblem(CMDOWSObject, Problem):
                 for var_desvar in var_design_vars:
                     metadata_name = cr._prom2abs['output'][var_desvar][0]
                     value = recorded_design_vars[var_desvar]
-                    if len(value) == 1:
+                    if type(value) == np.ndarray and value.ndim and value.size == 1:
                         value = value[0]
                     lb_value = cr.problem_metadata['variables'][metadata_name]['lower']
                     ub_value = cr.problem_metadata['variables'][metadata_name]['upper']
@@ -576,7 +576,7 @@ class LEGOProblem(CMDOWSObject, Problem):
                 for var_constraint in var_constraints:
                     metadata_name = cr._prom2abs['output'][var_constraint][0]
                     value = recorded_constraints[var_constraint]
-                    if len(value) == 1:
+                    if type(value) == np.ndarray and value.ndim and value.size == 1:
                         value = value[0]
                     lb_value = cr.problem_metadata['variables'][metadata_name]['lower']
                     ub_value = cr.problem_metadata['variables'][metadata_name]['upper']
@@ -607,7 +607,7 @@ class LEGOProblem(CMDOWSObject, Problem):
                 for var_qoi in var_does:
                     if var_qoi in var_does:
                         value = case.outputs[var_qoi]
-                        if len(value) == 1:
+                        if type(value) == np.ndarray and value.ndim and value.size == 1:
                             value = value[0]
                         print_optional('    {}: {}'.format(var_qoi, value), print_in_log)
                         results = add_or_append_dict_entry(results, 'qois', var_qoi, value)
@@ -621,7 +621,7 @@ class LEGOProblem(CMDOWSObject, Problem):
                             print_optional('\n    Quantities of interest', print_in_log)
                             title_not_printed = False
                         value = case.outputs[var_qoi]
-                        if len(value) == 1:
+                        if type(value) == np.ndarray and value.ndim and value.size == 1:
                             value = value[0]
                         print_optional('    {}: {}'.format(var_qoi, value), print_in_log)
                         results = add_or_append_dict_entry(results, 'qois', var_qoi, value)
