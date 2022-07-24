@@ -19,6 +19,7 @@ This file contains a set of XML utility functions.
 """
 from __future__ import absolute_import, division, print_function
 
+import json
 import re
 from collections import OrderedDict
 from shutil import copyfile
@@ -186,6 +187,8 @@ def xml_to_dict(xml):
                 value = str(text)
                 if ';' in value:
                     value = np.array(value.split(';'))
+                elif '[' in value:
+                    value = np.array(json.loads(value))
 
         # Update the dict with this element
         _dict.update({'/' + xpath[:-1]: value})
