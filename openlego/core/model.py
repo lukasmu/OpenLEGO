@@ -772,9 +772,9 @@ class LEGOModel(CMDOWSObject, Group):
         # type: () -> Dict[str]
         """:obj:`Dict[str]`: Constants used in the model."""
         _model_constants = {}
-        for name, shape in self.system_inputs.items():
+        for name, size in self.system_inputs.items():
             if name not in self.design_vars.keys():
-                _model_constants.update({name: shape})
+                _model_constants.update({name: size})
         return _model_constants
 
     @cached_property
@@ -1161,11 +1161,11 @@ class LEGOModel(CMDOWSObject, Group):
 
         # Add system constants
         discrete_variables = self.discrete_variables
-        for name, shape in self.model_constants.items():
+        for name in self.model_constants.keys():
             if name in discrete_variables:
                 coordinator.add_discrete_output(name, discrete_variables[name])
             else:
-                coordinator.add_output(name, shape=shape)
+                coordinator.add_output(name, shape_by_conn=True)
 
         return coordinator
 
