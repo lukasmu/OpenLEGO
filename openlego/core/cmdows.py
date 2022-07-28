@@ -102,7 +102,7 @@ class CMDOWSObject(object):
 
         self._discipline_resolvers = discipline_resolvers or []  # type: List[DisciplineResolver]
 
-        super(CMDOWSObject, self).__init__()
+        super(CMDOWSObject, self).__init__(**kwargs)
 
         if self._driver_uid is None:
             super_drivers = self.__check_for_super_driver()
