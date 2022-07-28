@@ -242,7 +242,6 @@ class LEGOProblem(CMDOWSObject, Problem):
             # Set default display and output settings
             if isinstance(driver, ScipyOptimizeDriver):
                 driver.options['disp'] = False  # Print the result
-            return driver
         elif self.driver_type == 'doe':
             # Find DOE element in CMDOWS file
             doe_uid = self.driver_uid
@@ -304,9 +303,12 @@ class LEGOProblem(CMDOWSObject, Problem):
             else:
                 raise ValueError('Could not match the doe_method {} with methods from OpenMDAO.'
                                  .format(doe_method))
-            return driver
         else:
-            return Driver()
+            driver = Driver()
+
+        # Call a function that would in native OpenMDAO be called in the setter for the driver
+        self._update_reports(driver)
+        return driver
 
     def clean_driver_after_failure(self):
         # type: () -> None
