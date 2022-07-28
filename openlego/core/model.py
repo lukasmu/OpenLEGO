@@ -876,9 +876,18 @@ class LEGOModel(CMDOWSObject, Group):
             # Add the design variable to the dict
             node_name = name if name not in self.coupling_vars else self.coupling_vars[name]['copy']
 
+            # Check if the main driver is not a DOE with a Custom design table (then ref0 and ref
+            # should be None)
+            ref0, ref = bounds[0], bounds[1]
+            if self.has_doe:
+                xpath_str = 'executableBlocks/does/doe/settings/method'
+                if self.elem_arch_elems.findtext(xpath_str) == 'Custom design table':
+                    ref0, ref = None, None
+
             # Update design_vars dictionary
             design_vars.update({node_name: {'initial': initial,
                                             'lower': bounds[0], 'upper': bounds[1],
+                                            'ref0': ref0, 'ref': ref,
                                             'global_lower': gl_bounds[0],
                                             'global_upper': gl_bounds[1]}})
         return design_vars
@@ -1309,7 +1318,8 @@ class LEGOModel(CMDOWSObject, Group):
 
         # Add the design variables
         for name, value in self.design_vars.items():
-            self.add_design_var(name, lower=value['lower'], upper=value['upper'])
+            self.add_design_var(name, lower=value['lower'], upper=value['upper'],
+                                ref0=value['ref0'], ref=value['ref'])
 
         # Add the constraints
         for name, value in self.constraints.items():
