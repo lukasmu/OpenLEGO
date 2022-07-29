@@ -293,10 +293,13 @@ class XMLComponent(ExplicitComponent):
                 # Therefore, we only set it here
                 self.compute_partials = self.compute_partials_function
             else:
-                self.declare_partials('*', '*', method='fd', step_calc='rel_avg')
-                # if self.outputs_from_xml and self.inputs_from_xml:
-                #     for src in self.outputs_from_xml.keys():
-                #         self.declare_partials(src, self.inputs_from_xml.keys(), method='fd')
+                step = None
+                step_calc = 'rel_avg'
+                if hasattr(self.discipline, 'step'):
+                    step = self.discipline.step
+                if hasattr(self.discipline, 'step_calc'):
+                    step_calc = self.discipline.step_calc
+                self.declare_partials('*', '*', method='fd', step=step, step_calc=step_calc)
 
     @abstractmethod
     def execute(self, input_xml=None, output_xml=None):
