@@ -289,6 +289,9 @@ class XMLComponent(ExplicitComponent):
                         if out_param in output_rename_map:
                             out_param = output_rename_map[out_param][0]
                         self.declare_partials(out_param, [xpath_to_param(_wrt) for _wrt in wrt.keys()])
+                # OpenMDAO always uses the compute_partials function if given (even if finite-difference is specified)
+                # Therefore, we only set it here
+                self.compute_partials = self.compute_partials_function
             else:
                 self.declare_partials('*', '*', method='fd', step_calc='rel_avg')
                 # if self.outputs_from_xml and self.inputs_from_xml:
@@ -519,7 +522,7 @@ class XMLComponent(ExplicitComponent):
             if self.outputs_from_xml:
                 self.read_outputs_file(output_xml, outputs, discrete_outputs)
 
-    def compute_partials(self, inputs, partials):
+    def compute_partials_function(self, inputs, partials):
         # type: (Vector, Vector) -> None
         """Write the input XML file, call `linearize()`, and read the sensitivities from the resulting XML file.
 
