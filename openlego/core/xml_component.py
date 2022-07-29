@@ -260,7 +260,7 @@ class XMLComponent(ExplicitComponent):
             if not is_float(value):
                 # Rename output variable if in conflict with input
                 if name in discrete_output_rename_map:
-                    name = discrete_output_rename_map[name]
+                    name = discrete_output_rename_map[name][0]
 
                 self.add_discrete_output(name, value)
 
